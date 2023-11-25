@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"www.sunheyi.cn","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="基本结构">
+<meta property="og:type" content="article">
+<meta property="og:title" content="linux结构">
+<meta property="og:url" content="https://www.sunheyi.cn/2021/03/28/linux%E7%BB%93%E6%9E%84/index.html">
+<meta property="og:site_name" content="流殃">
+<meta property="og:description" content="基本结构">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://gitee.com/flow_disaster/blog-map-bed/raw/master/img/image-20210328133652101.png">
+<meta property="article:published_time" content="2021-03-28T05:36:25.000Z">
+<meta property="article:modified_time" content="2023-11-25T09:03:40.738Z">
+<meta property="article:author" content="流殃">
+<meta property="article:tag" content="linux">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://gitee.com/flow_disaster/blog-map-bed/raw/master/img/image-20210328133652101.png">
+
+
+<link rel="canonical" href="https://www.sunheyi.cn/2021/03/28/linux%E7%BB%93%E6%9E%84/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://www.sunheyi.cn/2021/03/28/linux%E7%BB%93%E6%9E%84/","path":"2021/03/28/linux结构/","title":"linux结构"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>linux结构 | 流殃</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">流殃</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">欢迎来到我的博客</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E7%BB%93%E6%9E%84"><span class="nav-number">1.</span> <span class="nav-text">基本结构</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#VFS%E5%B1%82"><span class="nav-number">1.1.</span> <span class="nav-text">VFS层</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Page-Cache"><span class="nav-number">1.2.</span> <span class="nav-text">Page Cache</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#IO%E8%B0%83%E5%BA%A6%E5%B1%82"><span class="nav-number">1.3.</span> <span class="nav-text">IO调度层</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Block-%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8%E5%B1%82"><span class="nav-number">1.4.</span> <span class="nav-text">Block 设备驱动层</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RAID"><span class="nav-number">2.</span> <span class="nav-text">RAID</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%85%85%E6%94%BE%E7%94%B5"><span class="nav-number">2.1.</span> <span class="nav-text">充放电</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">流殃</p>
+  <div class="site-description" itemprop="description">用微笑面对生活</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">87</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">33</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://www.sunheyi.cn/2021/03/28/linux%E7%BB%93%E6%9E%84/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="流殃">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="流殃">
+      <meta itemprop="description" content="用微笑面对生活">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="linux结构 | 流殃">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          linux结构
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-03-28 13:36:25" itemprop="dateCreated datePublished" datetime="2021-03-28T13:36:25+08:00">2021-03-28</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2023-11-25 17:03:40" itemprop="dateModified" datetime="2023-11-25T17:03:40+08:00">2023-11-25</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h3 id="基本结构"><a href="#基本结构" class="headerlink" title="基本结构"></a>基本结构</h3><span id="more"></span>
+
+<p><img src="https://gitee.com/flow_disaster/blog-map-bed/raw/master/img/image-20210328133652101.png" alt="image-20210328133652101"></p>
+<h4 id="VFS层"><a href="#VFS层" class="headerlink" title="VFS层"></a>VFS层</h4><p>就是看你对哪个目录中的文件执行的磁盘io操作，把io请求交给具体的文件系统</p>
+<h4 id="Page-Cache"><a href="#Page-Cache" class="headerlink" title="Page Cache"></a>Page Cache</h4><p>在这个page cache 基于内存的缓存里找你要的数据在不在里面，如果有就基于内存缓存来执行读写，如果没有就继续往下一层走，此时这个请求会交给通用的block层，在这一层会把你对文件的io请求转换为Block IO请求</p>
+<h4 id="IO调度层"><a href="#IO调度层" class="headerlink" title="IO调度层"></a>IO调度层</h4><p>这一层里默认的是用CFQ公平调度算法，也就是说，可能有两个sql请求同时过来，一个比较简单，只是更新磁盘的一个block的数据就可以了，另外一个是读取一个表中的所有数据，如果基于这个默认的CFQ算法，就会让读全表的这个sql先执行，更新一个条数据的sql等到读全表的sql全部执行结束之后才能执行。这样会导致明明应该先执行简单地操作，结果复杂的反而先执行了，不符合我们的预期</p>
+<p>于是，在mysql的生产环境，建议采用deadline iO调用算法。它的一个核心思想就是，任何一个IO操作都能不能一直不停的等待，在指定范围内，都必须让他去执行</p>
+<h4 id="Block-设备驱动层"><a href="#Block-设备驱动层" class="headerlink" title="Block 设备驱动层"></a>Block 设备驱动层</h4><p>Io调度层决定了哪个io请求先执行，哪个io请求后执行，此时可以执行的io请求就会交给Block设备驱动层，经过驱动把iO请求发送给真正的存储硬件，也就是Block设备层</p>
+<h3 id="RAID"><a href="#RAID" class="headerlink" title="RAID"></a>RAID</h3><p>第一种、项目的数据读写十分频繁，然后对可靠性要求很高，那这时候毫无疑问肯定选择RAID10了，但是付出的代价也就高了，不过一般这么选择的用户眼都不会眨一下，类似银行，你懂的。</p>
+<p>第二种、项目的数据读十分频繁，写则较少一些，然后可靠性有一定要求但不是很高，那么可以选择RAID5，这应该是一种存储性能、数据安全和存储成本兼顾的存储解决方案了，也可以理解为是RAID 0和RAID 1的折中方案。</p>
+<p>第三种、项目的读写都十分频繁，但是可靠性要求不高，主要用于内部这种，可以选择RAID0。</p>
+<h4 id="充放电"><a href="#充放电" class="headerlink" title="充放电"></a>充放电</h4><p>服务器使用功能多快磁盘组成的RAID阵列的时候，一般会有一个RAID卡，这个RAID卡是带有一个缓存，这个缓存不是直接用我们的服务器的那种模式，他是一种跟内存类似的SDRAM，当然，你大致就认为它也是基于内存来存储的吧</p>
+<p>然后我们可以把RAID的缓存模式设置为write back，这样 的话，所有写入到磁盘阵列的数据，都先会缓存在RAID卡的缓存里，后续慢慢再写入到磁盘阵列里去，这种写缓冲机制，可以大幅度提升我们的数据库磁盘写的性能</p>
+<p>有了缓存我们很容易就会想到一个问题，就是比如数据写到了RAID卡的缓存中，机器突然宕机了，那么数据不就丢失了吗？其实正是因为如此，RAID卡一般都有配置自己独立的锂电池或者电容，如果服务器突然掉电了，无法接通电源了，RAID卡自己是基于锂电池供电运行的，然后它会赶紧把缓存里面的数据写入到阵列的磁盘上去</p>
+<p>但是锂电池是存在性能衰减的问题的，所以一般来说锂电池都是要配置定时充放电的，也就是说每隔30天-90天（不同的锂电池厂商是不一样的），就会自动对锂电池进行放电一次，这样可以延长锂电池的寿命和校验电池容量。</p>
+<p>如果不这样做，可能锂电池中存储的电量不够，在机器突然掉电的情况，锂电池中的电量不足以支撑将缓存中的数据全部刷新到磁盘上，就还是会造成数据丢失的现象</p>
+<p>所以在锂电池充放电的过程中，RAID的缓存界别会从wirte back变成 write through，我们通过RAID写数据的时候，IO就直接写磁盘了，如果写内存和写磁盘相比的话，写内存的效率会比写磁盘的效率高上数十倍</p>
+<blockquote>
+<p>生产建议：开启RAID卡的缓存，需要对锂电池的自动充放电的问题进行思考，防止由于锂电池定时的充放电造成系统的数据库每隔一段时间就会造成性能几十倍的抖动</p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/linux/" rel="tag"># linux</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/03/27/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/" rel="prev" title="排序算法">
+                  <i class="fa fa-angle-left"></i> 排序算法
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/03/29/mysql%E4%BA%8B%E5%8A%A1/" rel="next" title="mysql事务">
+                  mysql事务 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">流殃</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

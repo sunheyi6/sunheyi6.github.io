@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"www.sunheyi.cn","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="详细介绍redis String类型">
+<meta property="og:type" content="article">
+<meta property="og:title" content="redis之String">
+<meta property="og:url" content="https://www.sunheyi.cn/2021/05/08/redis%E4%B9%8BString/index.html">
+<meta property="og:site_name" content="流殃">
+<meta property="og:description" content="详细介绍redis String类型">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://gitee.com/flow_disaster/blog-map-bed/raw/master/img/image-20210509073428239.png">
+<meta property="og:image" content="https://gitee.com/flow_disaster/blog-map-bed/raw/master/img/image-20210509073428239.png">
+<meta property="article:published_time" content="2021-05-08T23:32:54.000Z">
+<meta property="article:modified_time" content="2023-11-25T09:03:40.742Z">
+<meta property="article:author" content="流殃">
+<meta property="article:tag" content="redis">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://gitee.com/flow_disaster/blog-map-bed/raw/master/img/image-20210509073428239.png">
+
+
+<link rel="canonical" href="https://www.sunheyi.cn/2021/05/08/redis%E4%B9%8BString/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://www.sunheyi.cn/2021/05/08/redis%E4%B9%8BString/","path":"2021/05/08/redis之String/","title":"redis之String"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>redis之String | 流殃</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">流殃</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">欢迎来到我的博客</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#what"><span class="nav-number">1.</span> <span class="nav-text">what</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#why"><span class="nav-number">2.</span> <span class="nav-text">why</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#SDS"><span class="nav-number">2.1.</span> <span class="nav-text">SDS</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A2%84%E5%88%86%E9%85%8D%E7%AD%96%E7%95%A5"><span class="nav-number">2.1.1.</span> <span class="nav-text">预分配策略</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%83%B0%E6%80%A7%E7%A9%BA%E9%97%B4%E9%87%8A%E6%94%BE"><span class="nav-number">2.1.2.</span> <span class="nav-text">惰性空间释放</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#sds%E5%92%8Cc%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="nav-number">2.1.3.</span> <span class="nav-text">sds和c字符串的区别</span></a></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">流殃</p>
+  <div class="site-description" itemprop="description">用微笑面对生活</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">87</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">33</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://www.sunheyi.cn/2021/05/08/redis%E4%B9%8BString/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="流殃">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="流殃">
+      <meta itemprop="description" content="用微笑面对生活">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="redis之String | 流殃">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          redis之String
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-05-09 07:32:54" itemprop="dateCreated datePublished" datetime="2021-05-09T07:32:54+08:00">2021-05-09</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2023-11-25 17:03:40" itemprop="dateModified" datetime="2023-11-25T17:03:40+08:00">2023-11-25</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>详细介绍redis String类型</p>
+<span id="more"></span>
+
+<h1 id="what"><a href="#what" class="headerlink" title="what"></a>what</h1><p>String是redis的基本类型之一</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">set</span> name shy     <span class="comment">#设置name为shy的键值对</span></span><br><span class="line">get name    <span class="comment">#获取键为name的值</span></span><br><span class="line">keys *    <span class="comment">#查看所有键值对</span></span><br><span class="line">exits key名字 <span class="comment">#返回1，表示key存在，0表示不存在</span></span><br><span class="line">move key名字 1  <span class="comment">#1表示当前数据库，删除key</span></span><br><span class="line">expire key名字 10  <span class="comment">#设置key名字的过期时间为10秒</span></span><br><span class="line">ttl key名字 <span class="comment">#查看key名字的过期时间还剩多少秒</span></span><br><span class="line"><span class="built_in">type</span> key名字 <span class="comment">#key的类型</span></span><br><span class="line">append key名字 值 <span class="comment">#向key的值追加数据</span></span><br><span class="line">strlen key名字 <span class="comment">#获取key的长度</span></span><br><span class="line">incr key  <span class="comment">#给key+1</span></span><br><span class="line">decr key   <span class="comment">#给key-1</span></span><br><span class="line">incrby key 步长  <span class="comment">#key每次加多少</span></span><br><span class="line">decrby  key 步长<span class="comment"># key每次减多少</span></span><br><span class="line">getrange key 0 3  <span class="comment">#截取字符串从0到3</span></span><br><span class="line">getrange key 0 -1  <span class="comment">#查看所有内容</span></span><br><span class="line">setrange key 1 xx   <span class="comment">#将第1位的值替换为xx</span></span><br><span class="line">setex（<span class="built_in">set</span> with expire）  <span class="comment">#设置过期时间</span></span><br><span class="line">setex key3 30 “hello” <span class="comment">#设置key3的值为hello，30秒后会过期</span></span><br><span class="line">setnx（<span class="built_in">set</span> <span class="keyword">if</span> not exist）  <span class="comment">#不存在设置</span></span><br><span class="line">setnx key3 “redis”  <span class="comment">#如果不存在key3，就创建</span></span><br><span class="line">mset key value  <span class="comment">#一次设置多个键值对</span></span><br><span class="line">mget key1 key2  <span class="comment">#一次获取多个键的值</span></span><br><span class="line">msetnx 多键值对版本 <span class="comment">#是一个原子性的操作，要么都成功，要么都失败 </span></span><br><span class="line">mset user:1:name zhangsan  user:1:age 12</span><br><span class="line"><span class="comment">#设置一个对象的两个属性 对象名：ID：属性名</span></span><br><span class="line">mget user：1：name user：1：age</span><br><span class="line"><span class="comment">#获取一个对象的两个属性</span></span><br><span class="line">setget v1 redis</span><br><span class="line"><span class="comment">#如果不存在v1，则返回空，但是将v1的值设置为redis</span></span><br><span class="line"><span class="comment">#，如果存在，则返回v1的值，然后将v1的设置为redis</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="why"><a href="#why" class="headerlink" title="why"></a>why</h1><h2 id="SDS"><a href="#SDS" class="headerlink" title="SDS"></a>SDS</h2><p>采用sds结构来存储字符串，结果如下</p>
+<p><img src="https://gitee.com/flow_disaster/blog-map-bed/raw/master/img/image-20210509073428239.png">redis中使用这样的sds的结构来构建字符串主要有以下几个原因：</p>
+<ol>
+<li>当获取长度的时候，时间复杂度为0（1）</li>
+<li>二进制安全，当比如用一个空字符串作为字符串中的一个特殊变量的时候，由于c中的字符串是通过\0这个空字符来区分一个字符串是否结尾的，所以它只能用于保存文本数据，而不能保存像图片、音频、视频、压缩文件这样的二进制数据</li>
+<li>杜绝缓冲区溢出（sds是通过预分配策略和惰性空间释放来减少的）</li>
+<li>减少修改字符串时带来的内存重分配次数（sds是通过预分配策略和惰性空间释放来减少的）</li>
+<li>可以使用c语言的一些函数，因为sds字符串的也是以\0 作为结尾的，但是sds字符串是通过sds的len属性来确定这个字符串是不是结束的，c的字符串则是单一的通过\0来确认一个字符串是否结束</li>
+</ol>
+<h3 id="预分配策略"><a href="#预分配策略" class="headerlink" title="预分配策略"></a>预分配策略</h3><p>如果对SDS进行修改之后，SDS的长度（也即是len属性的值）将小于1MB，那么程序分配和len属性同样大小的未使用空间，这时SDS len属性的值将和free属性的值相同。举个例子，如果进行修改之后，SDS的len将变成13字节，那么程序也会分配13字节的未使用空间，SDS的buf数组的实际长度将变成13+13+1&#x3D;27字节（额外的一字节用于保存空字符）。</p>
+<p>如果对SDS进行修改之后，SDS的长度将大于等于1MB，那么程序会分配1MB的未使用空间。举个例子，如果进行修改之后，SDS的len将变成30MB，那么程序会分配1MB的未使用空间，SDS的buf数组的实际长度将为30MB+1MB+1byte。</p>
+<h3 id="惰性空间释放"><a href="#惰性空间释放" class="headerlink" title="惰性空间释放"></a>惰性空间释放</h3><p>惰性空间释放用于优化SDS的字符串缩短操作：当SDS的API需要缩短SDS保存的字符串时，程序并不立即使用内存重分配来回收缩短后多出来的字节，而是使用free属性将这些字节的数量记录起来，并等待将来使用。</p>
+<h3 id="sds和c字符串的区别"><a href="#sds和c字符串的区别" class="headerlink" title="sds和c字符串的区别"></a>sds和c字符串的区别</h3><p><img src="https://gitee.com/flow_disaster/blog-map-bed/raw/master/img/image-20210509073428239.png" alt="image-20210509073428239"></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/redis/" rel="tag"># redis</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/05/07/%E4%B8%80%E4%B8%AA%E6%9C%89%E5%BA%8F%E4%B8%94%E5%85%83%E7%B4%A0%E9%87%8D%E5%A4%8D%E7%9A%84%E6%95%B0%E7%BB%84%E6%9D%A5%E8%BF%9B%E8%A1%8C%E5%8E%BB%E9%87%8D%E6%8E%92%E5%BA%8F/" rel="prev" title="一个有序且元素重复的数组来进行去重排序">
+                  <i class="fa fa-angle-left"></i> 一个有序且元素重复的数组来进行去重排序
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/05/08/redis%E6%8C%81%E4%B9%85%E5%8C%96/" rel="next" title="redis持久化">
+                  redis持久化 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">流殃</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

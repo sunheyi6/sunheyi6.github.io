@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"www.sunheyi.cn","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="基本流程">
+<meta property="og:type" content="article">
+<meta property="og:title" content="mysql执行流程">
+<meta property="og:url" content="https://www.sunheyi.cn/2021/03/24/mysql%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B/index.html">
+<meta property="og:site_name" content="流殃">
+<meta property="og:description" content="基本流程">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://gitee.com/flow_disaster/blog-map-bed/raw/master/img/image-20210325191751923.png">
+<meta property="og:image" content="https://gitee.com/flow_disaster/blog-map-bed/raw/master/img/image-20210404081651310.png">
+<meta property="og:image" content="https://gitee.com/flow_disaster/blog-map-bed/raw/master/img/image-20210328085710305.png">
+<meta property="og:image" content="https://gitee.com/flow_disaster/blog-map-bed/raw/master/img/image-20210330064652434.png">
+<meta property="article:published_time" content="2021-03-24T00:54:59.000Z">
+<meta property="article:modified_time" content="2023-11-25T09:03:40.742Z">
+<meta property="article:author" content="流殃">
+<meta property="article:tag" content="mysql">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://gitee.com/flow_disaster/blog-map-bed/raw/master/img/image-20210325191751923.png">
+
+
+<link rel="canonical" href="https://www.sunheyi.cn/2021/03/24/mysql%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://www.sunheyi.cn/2021/03/24/mysql%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B/","path":"2021/03/24/mysql执行流程/","title":"mysql执行流程"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>mysql执行流程 | 流殃</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">流殃</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">欢迎来到我的博客</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B"><span class="nav-number">1.</span> <span class="nav-text">基本流程</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BF%9E%E6%8E%A5%E5%99%A8"><span class="nav-number">1.1.</span> <span class="nav-text">连接器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%A7%A3%E6%9E%90%E5%99%A8"><span class="nav-number">1.2.</span> <span class="nav-text">解析器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BC%98%E5%8C%96%E5%99%A8"><span class="nav-number">1.3.</span> <span class="nav-text">优化器</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%88%90%E6%9C%AC%E8%AE%A1%E7%AE%97"><span class="nav-number">1.3.1.</span> <span class="nav-text">成本计算</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#sql%E6%94%B9%E5%86%99"><span class="nav-number">1.3.2.</span> <span class="nav-text">sql改写</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%89%A7%E8%A1%8C%E5%99%A8"><span class="nav-number">1.4.</span> <span class="nav-text">执行器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#innodb%E5%BC%95%E6%93%8E"><span class="nav-number">1.5.</span> <span class="nav-text">innodb引擎</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Buffer-Pool"><span class="nav-number">1.6.</span> <span class="nav-text">Buffer Pool</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#redolog"><span class="nav-number">1.6.1.</span> <span class="nav-text">redolog</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#%E7%BB%93%E6%9E%84"><span class="nav-number">1.6.1.1.</span> <span class="nav-text">结构</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#%E7%BB%84%E6%88%90"><span class="nav-number">1.6.1.2.</span> <span class="nav-text">组成</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#%E4%BA%8B%E5%8A%A1"><span class="nav-number">1.6.1.3.</span> <span class="nav-text">事务</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#%E5%88%B7%E7%9B%98%E6%97%B6%E6%9C%BA"><span class="nav-number">1.6.1.4.</span> <span class="nav-text">刷盘时机</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#%E5%8F%82%E6%95%B0"><span class="nav-number">1.6.1.5.</span> <span class="nav-text">参数</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#%E7%BB%84%E6%8F%90%E4%BA%A4"><span class="nav-number">1.6.1.6.</span> <span class="nav-text">组提交</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#%E5%91%BD%E4%BB%A4"><span class="nav-number">1.6.1.7.</span> <span class="nav-text">命令</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#binlog"><span class="nav-number">1.6.2.</span> <span class="nav-text">binlog</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#%E5%88%B7%E7%9B%98%E6%96%B9%E5%BC%8F"><span class="nav-number">1.6.2.1.</span> <span class="nav-text">刷盘方式</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#%E7%BB%84%E6%8F%90%E4%BA%A4-1"><span class="nav-number">1.6.2.2.</span> <span class="nav-text">组提交</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#%E6%A0%BC%E5%BC%8F"><span class="nav-number">1.6.2.3.</span> <span class="nav-text">格式</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#undolog"><span class="nav-number">1.6.3.</span> <span class="nav-text">undolog</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#%E7%BB%93%E6%9E%84-1"><span class="nav-number">1.6.3.1.</span> <span class="nav-text">结构</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%8C%BA%E5%88%AB"><span class="nav-number">1.6.4.</span> <span class="nav-text">区别</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E9%9D%9E%E5%8F%8C1"><span class="nav-number">1.6.5.</span> <span class="nav-text">非双1</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#crash-safe"><span class="nav-number">2.</span> <span class="nav-text">crash-safe</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A3%81%E7%9B%98%E6%96%87%E4%BB%B6"><span class="nav-number">3.</span> <span class="nav-text">磁盘文件</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">流殃</p>
+  <div class="site-description" itemprop="description">用微笑面对生活</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">87</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">33</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://www.sunheyi.cn/2021/03/24/mysql%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="流殃">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="流殃">
+      <meta itemprop="description" content="用微笑面对生活">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="mysql执行流程 | 流殃">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          mysql执行流程
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-03-24 08:54:59" itemprop="dateCreated datePublished" datetime="2021-03-24T08:54:59+08:00">2021-03-24</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2023-11-25 17:03:40" itemprop="dateModified" datetime="2023-11-25T17:03:40+08:00">2023-11-25</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h3 id="基本流程"><a href="#基本流程" class="headerlink" title="基本流程"></a>基本流程</h3><span id="more"></span>
+
+<p><img src="https://gitee.com/flow_disaster/blog-map-bed/raw/master/img/image-20210325191751923.png" alt="image-20210325191751923"></p>
+<p>上图就是mysql的基本流程</p>
+<h4 id="连接器"><a href="#连接器" class="headerlink" title="连接器"></a>连接器</h4><p>账号密码输入之后即可登录</p>
+<p>连接的方式分为两种：</p>
+<ul>
+<li>长连接：连接成功后，如果客户端持续有请求，则一直使用同一连接，</li>
+<li>短连接：指每次执行完很少的几次查询就断开连接，下次查询再重新建立一个</li>
+</ul>
+<blockquote>
+<p>建立连接的过程通常是比较复杂的，所以我建议你在使用中要尽量减少建立连接的动作，也就是尽量使用长连接</p>
+</blockquote>
+<p>但是全部使用长连接后，你可能会发现，有些时候 MySQL 占用内存涨得特别快，这是因为 MySQL 在执行过程中临时使用的内存是管理在连接对象里面的。这些资源会在连接断开的时候才释放。所以如果长连接累积下来，可能导致内存占用太大，被系统强行杀掉（OOM），从现象看就是 MySQL 异常重启了。</p>
+<p>怎么解决这个问题呢？你可以考虑以下两种方案。</p>
+<ol>
+<li>定期断开长连接。使用一段时间，或者程序里面判断执行过一个占用内存的大查询后，断开连接，之后要查询再重连。</li>
+<li>如果你用的是 MySQL 5.7 或更新版本，可以在每次执行一个比较大的操作后，通过执行 mysql_reset_connection 来重新初始化连接资源。这个过程不需要重连和重新做权限验证，但是会将连接恢复到刚刚创建完时的状态。</li>
+</ol>
+<h4 id="解析器"><a href="#解析器" class="headerlink" title="解析器"></a>解析器</h4><p>这个解析器的功能，其实很好理解，就是用来识别关键字的，比如常见的select delete create等等，同时也要检查你写的sql语句语法是否有问题，有问题的就是直接返回</p>
+<h4 id="优化器"><a href="#优化器" class="headerlink" title="优化器"></a>优化器</h4><p>多索引的时候，一般会选择在索引里扫描行数比比较少的那个条件</p>
+<p>或者join连接的时候，先连接哪个表</p>
+<h5 id="成本计算"><a href="#成本计算" class="headerlink" title="成本计算"></a>成本计算</h5><p><img src="https://gitee.com/flow_disaster/blog-map-bed/raw/master/img/image-20210404081651310.png" alt="image-20210404081651310"></p>
+<h5 id="sql改写"><a href="#sql改写" class="headerlink" title="sql改写"></a>sql改写</h5><p>就是会对你的sql语句进行一些优化，更加明确sql语句的语义</p>
+<h4 id="执行器"><a href="#执行器" class="headerlink" title="执行器"></a>执行器</h4><p>经过前面两个步骤之后，到这里mysql才真正开始执行你写的sql语句，但是它会判断当前这个用户是否有这个操作的权限，如果有，则执行sql语句，如果没有，则返回没有权限的错误</p>
+<blockquote>
+<p>引擎扫描行数跟 rows_examined 并不是完全相同的</p>
+</blockquote>
+<h4 id="innodb引擎"><a href="#innodb引擎" class="headerlink" title="innodb引擎"></a>innodb引擎</h4><p>引擎执行sql语句的时候，也并不是直接去磁盘中查找的，而是要先在缓存中进行查找，在缓存中找不到的话，才会从磁盘中将数据加载到缓存中，然后从缓存中读取</p>
+<p>这个缓存层，在mysql中人们习惯称之为buffer pool</p>
+<h4 id="Buffer-Pool"><a href="#Buffer-Pool" class="headerlink" title="Buffer Pool"></a>Buffer Pool</h4><p><img src="https://gitee.com/flow_disaster/blog-map-bed/raw/master/img/image-20210328085710305.png" alt="image-20210328085710305"></p>
+<p>上图其实就是buffer pool的执行流程</p>
+<ol>
+<li>首先是判断数据是否在buffer pool中，如果在的话，直接更新数据，如果不在，则直接去磁盘中请求相应数据，然后刷入到buffer pool中，再从buffer pool中读取</li>
+<li>更新undolog到磁盘中，undolog的作用其实非常清楚，它主要是用于回滚事务的，比如你这个事务没有执行成功，它就依靠undolog来进行回滚</li>
+<li>将更新数据的操作写入到redolog buffer中</li>
+<li>将更新数据的操作写入到binlog中</li>
+<li>提交redolog的commit，将redolog写入到os cache中，然后根据redolog的参数来决定os cache的刷盘策略</li>
+</ol>
+<h5 id="redolog"><a href="#redolog" class="headerlink" title="redolog"></a>redolog</h5><p>作用：主要用来出现意外情况，数据还在内存当中，但是机器宕机的场景</p>
+<p>redo log里本质上记录的就是在对某个表空间的某个数据页的某个偏移量的地方修改了</p>
+<p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/XTpoYW--6PTqotcC8tpF2A">redolog与binlog的区别</a></p>
+<p>redolog 在缓存中叫做redolog buffer，在磁盘中叫做 redolog file。</p>
+<blockquote>
+<p>redologbuffer 默认为16MB</p>
+</blockquote>
+<p>两段式提交，数据刷新到内存，然后刷新到redolog buffer上，此时redolog是处于prepare阶段，然后mysql将数据刷新到binlog上，binlog写入成功之后，提交给redolog一个commit，此时redolog才算刚刚结束，接着要把redolog buffer刷入到os cache中，然后根据redolog的参数来决定os cache的刷盘策略</p>
+<blockquote>
+<p>redolog buffer刷新到磁盘中是有方法的，在redolog buffer没有写满的时候，采用追加写的方式，当redolog buffer 写满的时候，</p>
+</blockquote>
+<p>了解了redo log的写入方式之后，我们发现主要完成的操作是redo log buffer 到磁盘的redo log file的写入过程，其中需要经过OS buffer进行中转。关于redo log buffer写入redo log file的时机，可以通过 参数innodb_flush_log_at_trx_commit 进行配置，各参数值含义如下：</p>
+<ul>
+<li><p>l参数为0的时候，称为“延迟写”。事务提交时不会将redo log buffer中日志写入到OS buffer，而是每秒写入OS buffer并调用写入到redo log file中。换句话说，这种方式每秒会发起写入磁盘的操作，假设系统崩溃，只会丢失1秒钟的数据。</p>
+</li>
+<li><p>l参数为1 的时候，称为“实时写，实时刷”。事务每次提交都会将redo log buffer中的日志写入OS buffer并保存到redo log file中。其有点是，即使系统崩溃也不会丢失任何数据，缺点也很明显就是每次事务提交都要进行磁盘操作，性能较差。</p>
+</li>
+<li><p>l参数为2的时候，称为“实时写，延迟刷”。每次事务提交写入到OS buffer，然后是每秒将日志写入到redo log file。这样性能会好点，缺点是在系统崩溃的时候会丢失1秒中的事务数据。</p>
+</li>
+</ul>
+<h6 id="结构"><a href="#结构" class="headerlink" title="结构"></a>结构</h6><p>日志类型（就是类似MLOG_1BYTE之类的），表空间ID，数据页号，数据页中的偏移量，具体修改的数据</p>
+<p>redo log就划分为了不同的类型，MLOG_1BYTE类型的日志指的就是修改了1个字节的值，MLOG_2BYTE类型的日志指的就是修改了2个字节的值，以此类推，还有修改了4个字节的值的日志类型，修改了8个字节的值的日志类型。</p>
+<p>当然，如果你要是一下子修改了一大串的值，类型就是MLOG_WRITE_STRING，就是代表你一下子在那个数据页的某个偏移量的位置插入或者修改了一大串的值。</p>
+<p>MLOG_WRITE_STRING类型的日志，因为不知道具体修改了多少字节的数据，所以其实会多一个修改数据长度，就告诉你他这次修改了多少字节的数据，如下所示他的格式：</p>
+<p>日志类型（就是类似MLOG_1BYTE之类的），表空间ID，数据页号，数据页中的偏移量，修改数据长度，具体修改的数据</p>
+<h6 id="组成"><a href="#组成" class="headerlink" title="组成"></a>组成</h6><p>redolog buffer里面有很多条数据，那它刷新到磁盘的时候，总不可能一条数据一条数据刷吧，那样性能就太差了，所以说有了redolog block这个数据结构</p>
+<p>redolog block中存放了许多个单行日志，刷新到磁盘按照redolog block来刷新</p>
+<blockquote>
+<p>一个block最多放496个自己的redo log日志</p>
+<p>，一个redolog block 是512字节，这个redolog block的512字节分成三个部分</p>
+<ol>
+<li>12字节的header快头<ul>
+<li>4个字节的block no，块的唯一编号</li>
+<li>2个字节的data length，就是block里面写入了多少字节数据</li>
+<li>2个字节的first record group 这个是说每个事务都会有多个redo log，就是一个redolog group，即一组redo log。那么在这个block里的第一组的redolog的偏移量，就是这个两个字节存储的</li>
+<li>4个字节的checkpoint on</li>
+</ul>
+</li>
+<li>496字节的body块体</li>
+<li>4字节的trailer块尾</li>
+</ol>
+</blockquote>
+<p><img src="https://gitee.com/flow_disaster/blog-map-bed/raw/master/img/image-20210330064652434.png" alt="image-20210330064652434"></p>
+<h6 id="事务"><a href="#事务" class="headerlink" title="事务"></a>事务</h6><p>在进行一个事务的时候，由于一个事务要进行多个增删改查的操作，所以一般都是将这些redolog先在别的地方存放，等到都转型完毕了，就把这一组redolog写入到redolog bufer中</p>
+<h6 id="刷盘时机"><a href="#刷盘时机" class="headerlink" title="刷盘时机"></a>刷盘时机</h6><ol>
+<li>如果写入redolog bufer 的日志已经占据了redolog buffer总容量的一半，就会开始刷盘</li>
+<li>一个事务提交的时候，必须把它那些redolog 所在的redolog block刷入到磁盘中去，只有这样，才可以保证事务提交之后，他提交的数据绝对不会丢失。因为redolog有日志记录，随时可以回复事务做的修改</li>
+<li>后台线程定时刷新，有一个线程每个1秒就会吧redolog buffer中的redolog block刷入到磁盘文件</li>
+<li>mysql关闭的时候，redolog buffer全部刷新到磁盘中</li>
+</ol>
+<h6 id="参数"><a href="#参数" class="headerlink" title="参数"></a>参数</h6><p>InnoDB 提供了 innodb_flush_log_at_trx_commit 参数，它有三种可能取值：</p>
+<ul>
+<li>设置为 0 的时候，表示每次事务提交时都只是把 redo log 留在 redo log buffer 中 ;</li>
+<li>设置为 1 的时候，表示每次事务提交时都将 redo log 直接持久化到磁盘；</li>
+<li>设置为 2 的时候，表示每次事务提交时都只是把 redo log 写到 page cache。</li>
+</ul>
+<blockquote>
+<p>一个没有提交的事务的 redo log，也是可能已经持久化到磁盘的。</p>
+</blockquote>
+<h6 id="组提交"><a href="#组提交" class="headerlink" title="组提交"></a>组提交</h6><p>日志逻辑序列号（log sequence number，LSN）的概念。LSN 是单调递增的，用来对应 redo log 的一个个写入点。每次写入长度为 length 的 redo log， LSN 的值就会加上 length。</p>
+<blockquote>
+<p>LSN 也会写到 InnoDB 的数据页中，来确保数据页不会被多次执行重复的 redo log。</p>
+</blockquote>
+<p>比如说有三个事务并发提交了，对应的 LSN 分别是 50、120 和 160,如果50的lsn对应的事务先到达os cache之后，它就会成为leader，等到它开始要进行刷盘的时候，此时这个组里面已经有三个事务了，lsn变为了160，所以这个事务写盘的时候，带的lsn是160，因此等 这个事务返回时，所有 LSN 小于等于 160 的 redo log，都已经被持久化到磁盘；</p>
+<h6 id="命令"><a href="#命令" class="headerlink" title="命令"></a>命令</h6><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#查看redolog目录</span></span><br><span class="line">show variables like <span class="string">&#x27;datadir&#x27;</span></span><br><span class="line"><span class="comment">#设置redolog目录</span></span><br><span class="line">innodb_log_group_home_dir</span><br><span class="line"><span class="comment">#redolog默认为48MB，默认有两个日志文件innodb_log_files_in_group</span></span><br><span class="line">innodb_log_file_size</span><br></pre></td></tr></table></figure>
+
+<h5 id="binlog"><a href="#binlog" class="headerlink" title="binlog"></a>binlog</h5><p>作用：主要用来进行主从备份的</p>
+<h6 id="刷盘方式"><a href="#刷盘方式" class="headerlink" title="刷盘方式"></a>刷盘方式</h6><ul>
+<li>sync_binlog&#x3D;0 的时候，表示每次提交事务都只 write，不 fsync；</li>
+<li>sync_binlog&#x3D;1 的时候，表示每次提交事务都会执行 fsync；</li>
+<li>sync_binlog&#x3D;N(N&gt;1) 的时候，表示每次提交事务都 write，但累积 N 个事务后才 fsync。</li>
+</ul>
+<blockquote>
+<p>在出现 IO 瓶颈的场景里，将 sync_binlog 设置成一个比较大的值，可以提升性能。在实际的业务场景中，考虑到丢失日志量的可控性，一般不建议将这个参数设成 0，比较常见的是将其设置为 100~1000 中的某个数值。但是，将 sync_binlog 设置为 N，对应的风险是：如果主机发生异常重启，会丢失最近 N 个事务的 binlog 日志。</p>
+</blockquote>
+<h6 id="组提交-1"><a href="#组提交-1" class="headerlink" title="组提交"></a>组提交</h6><p>如果你想提升 binlog 组提交的效果，可以通过设置 binlog_group_commit_sync_delay 和 binlog_group_commit_sync_no_delay_count 来实现。</p>
+<ul>
+<li><p>binlog_group_commit_sync_delay 参数，表示延迟多少微秒后才调用 fsync;</p>
+</li>
+<li><p>binlog_group_commit_sync_no_delay_count 参数，表示累积多少次以后才调用 fsync。、</p>
+<blockquote>
+<p>这两个条件是或的关系，也就是说只要有一个满足条件就会调用 fsync。所以，当 binlog_group_commit_sync_delay 设置为 0 的时候，binlog_group_commit_sync_no_delay_count 也无效了。</p>
+</blockquote>
+</li>
+</ul>
+<h6 id="格式"><a href="#格式" class="headerlink" title="格式"></a>格式</h6><p>主要分为三种格式，statement row和mixed</p>
+<ul>
+<li>statement 格式下，记录到 binlog 里的是语句原文，就是你在mysql中执行的是什么语句，在binlog也是同样的语句，但是这样可能会导致出现索引不通的情况出现，当索引不通的时候，你在执行delete的时候还使用了limit，那么就会出现错误删除的情况</li>
+<li>rpw 格式下，记录的是哪个表，删除的主键id是什么，所以是不会执行错误的，但是它同样有一个缺点，就是当数据量大的时候，非常消耗空间</li>
+<li>，mixed其实就是前两种格式的融合</li>
+</ul>
+<blockquote>
+<p>mixed的来源</p>
+<ul>
+<li>因为有些 statement 格式的 binlog 可能会导致主备不一致，所以要使用 row 格式。</li>
+<li>但 row 格式的缺点是，很占空间。比如你用一个 delete 语句删掉 10 万行数据，用 statement 的话就是一个 SQL 语句被记录到 binlog 中，占用几十个字节的空间。但如果用 row 格式的 binlog，就要把这 10 万条记录都写到 binlog 中。这样做，不仅会占用更大的空间，同时写 binlog 也要耗费 IO 资源，影响执行速度。</li>
+<li>所以，MySQL 就取了个折中方案，也就是有了 mixed 格式的 binlog。mixed 格式的意思是，MySQL 自己会判断这条 SQL 语句是否可能引起主备不一致，如果有可能，就用 row 格式，否则就用 statement 格式。</li>
+</ul>
+</blockquote>
+<h5 id="undolog"><a href="#undolog" class="headerlink" title="undolog"></a>undolog</h5><p>undolog这个日志主要是用来进行事务回滚的，一般只有进行数据变动的时候才会有undolog，比如update insert delete，但是select 是没有的，因为select只是获取数据，并没有对数据进行变更</p>
+<p>比如你插入一条数据，undolog中记录的是 删除一条数据，是和你进行操作的行为是相反的</p>
+<h6 id="结构-1"><a href="#结构-1" class="headerlink" title="结构"></a>结构</h6><ul>
+<li>这条日志开始的问题只</li>
+<li>主键的各列长度和值，主键可能是你设置的表的主键，也可能是三个字段组成的联合主键，也有可能是myslq默认添加的row_id作为主键</li>
+<li>表id</li>
+<li>undolog日志编号</li>
+<li>undolog日志类型 ，比如 insert语句的undolog的日志类型是 TRX_UNDO_INSERT_REC</li>
+<li>这条日志的结束位置</li>
+</ul>
+<h5 id="区别"><a href="#区别" class="headerlink" title="区别"></a>区别</h5><ol>
+<li>redo log 是 InnoDB 引擎特有的；binlog 是 MySQL 的 Server 层实现的，所有引擎都可以使用。</li>
+<li>redo log 是物理日志，记录的是“在某个数据页上做了什么修改”；binlog 是逻辑日志，记录的是这个语句的原始逻辑，比如“给 ID&#x3D;2 这一行的 c 字段加 1 ”</li>
+<li>redo log 是循环写的，空间固定会用完；binlog 是可以追加写入的。“追加写”是指 binlog 文件写到一定大小后会切换到下一个，并不会覆盖以前的日志。</li>
+</ol>
+<blockquote>
+<p>为什么 binlog cache 是每个线程自己维护的，而 redo log buffer 是全局共用的？</p>
+<p>MySQL 这么设计的主要原因是，binlog 是不能“被打断的”。一个事务的 binlog 必须连续写，因此要整个事务完成后，再一起写到文件里。</p>
+</blockquote>
+<h5 id="非双1"><a href="#非双1" class="headerlink" title="非双1"></a>非双1</h5><p>一般情况下，把生产库改成“非双 1”配置，是设置 innodb_flush_logs_at_trx_commit&#x3D;2、sync_binlog&#x3D;1000。</p>
+<h3 id="crash-safe"><a href="#crash-safe" class="headerlink" title="crash-safe"></a><strong>crash-safe</strong></h3><p>即在 InnoDB 存储引擎中，事务提交过程中任何阶段，MySQL突然奔溃，重启后都能保证事务的完整性，已提交的数据不会丢失，未提交完整的数据会自动进行回滚</p>
+<p>这个能力依赖的就是redo log和unod log两个日志。</p>
+<p>实际上数据库的 crash-safe 保证的是：</p>
+<ul>
+<li>如果客户端收到事务成功的消息，事务就一定持久化了；</li>
+<li>如果客户端收到事务失败（比如主键冲突、回滚等）的消息，事务就一定失败了；</li>
+<li>如果客户端收到“执行异常”的消息，应用需要重连后通过查询当前状态来继续后续的逻辑。此时数据库只需要保证内部（数据和日志之间，主库和备库之间）一致就可以了。</li>
+</ul>
+<h3 id="磁盘文件"><a href="#磁盘文件" class="headerlink" title="磁盘文件"></a>磁盘文件</h3><p>磁盘文件有三个层级</p>
+<ol>
+<li>一组数据组，是256个数据区</li>
+<li>一个数据区，是64个数据页</li>
+<li>一个数据页，是16kb</li>
+</ol>
+<p>在磁盘中把一页的数据叫做数据页，在缓存中，称之为缓存页</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/mysql/" rel="tag"># mysql</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/03/22/%E7%BC%93%E5%AD%98/" rel="prev" title="缓存">
+                  <i class="fa fa-angle-left"></i> 缓存
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/03/27/redis%E9%9B%86%E7%BE%A4%E9%85%8D%E7%BD%AE/" rel="next" title="redis集群配置">
+                  redis集群配置 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">流殃</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

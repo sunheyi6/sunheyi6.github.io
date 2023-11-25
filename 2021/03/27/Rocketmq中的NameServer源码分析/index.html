@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"www.sunheyi.cn","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="创建NamesrvController">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Rocketmq中的NameServer源码分析">
+<meta property="og:url" content="https://www.sunheyi.cn/2021/03/27/Rocketmq%E4%B8%AD%E7%9A%84NameServer%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/index.html">
+<meta property="og:site_name" content="流殃">
+<meta property="og:description" content="创建NamesrvController">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-03-27T01:05:22.000Z">
+<meta property="article:modified_time" content="2023-11-25T09:03:40.738Z">
+<meta property="article:author" content="流殃">
+<meta property="article:tag" content="rocketmq">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://www.sunheyi.cn/2021/03/27/Rocketmq%E4%B8%AD%E7%9A%84NameServer%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://www.sunheyi.cn/2021/03/27/Rocketmq%E4%B8%AD%E7%9A%84NameServer%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/","path":"2021/03/27/Rocketmq中的NameServer源码分析/","title":"Rocketmq中的NameServer源码分析"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Rocketmq中的NameServer源码分析 | 流殃</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">流殃</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">欢迎来到我的博客</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9B%E5%BB%BANamesrvController"><span class="nav-number">1.</span> <span class="nav-text">创建NamesrvController</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#NamesrvStartup"><span class="nav-number">1.1.</span> <span class="nav-text">NamesrvStartup</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RemotingService"><span class="nav-number">1.2.</span> <span class="nav-text">RemotingService</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96NameServerController"><span class="nav-number">2.</span> <span class="nav-text">初始化NameServerController</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#RouteInfoManager"><span class="nav-number">2.1.</span> <span class="nav-text">RouteInfoManager</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#broker%E6%B3%A8%E5%86%8C%E5%88%B0nameserver"><span class="nav-number">3.</span> <span class="nav-text">broker注册到nameserver</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#NamesrvController"><span class="nav-number">3.1.</span> <span class="nav-text">NamesrvController</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DefaultRequestProcessor"><span class="nav-number">3.2.</span> <span class="nav-text">DefaultRequestProcessor</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">流殃</p>
+  <div class="site-description" itemprop="description">用微笑面对生活</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">87</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">33</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://www.sunheyi.cn/2021/03/27/Rocketmq%E4%B8%AD%E7%9A%84NameServer%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="流殃">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="流殃">
+      <meta itemprop="description" content="用微笑面对生活">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Rocketmq中的NameServer源码分析 | 流殃">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Rocketmq中的NameServer源码分析
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-03-27 09:05:22" itemprop="dateCreated datePublished" datetime="2021-03-27T09:05:22+08:00">2021-03-27</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2023-11-25 17:03:40" itemprop="dateModified" datetime="2023-11-25T17:03:40+08:00">2023-11-25</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="创建NamesrvController"><a href="#创建NamesrvController" class="headerlink" title="创建NamesrvController"></a>创建NamesrvController</h2><span id="more"></span>
+
+<blockquote>
+<p>我这里都是截取的部分代码，梳理大概逻辑，具体细节部分需要大家自行去阅读源码</p>
+</blockquote>
+<h3 id="NamesrvStartup"><a href="#NamesrvStartup" class="headerlink" title="NamesrvStartup"></a>NamesrvStartup</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> NamesrvController <span class="title function_">main0</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="type">NamesrvController</span> <span class="variable">controller</span> <span class="operator">=</span> createNamesrvController(args);</span><br><span class="line">        start(controller);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> NamesrvController <span class="title function_">start</span><span class="params">(<span class="keyword">final</span> NamesrvController controller)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">    <span class="type">boolean</span> <span class="variable">initResult</span> <span class="operator">=</span> controller.initialize();</span><br><span class="line">    controller.start();</span><br><span class="line">    <span class="keyword">return</span> controller;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">start</span><span class="params">()</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">    <span class="comment">//真正地启动nameserver，这个start的是调用了remotingServer接口的start</span></span><br><span class="line">    <span class="built_in">this</span>.remotingServer.start();</span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">this</span>.fileWatchService != <span class="literal">null</span>) &#123;</span><br><span class="line">        <span class="built_in">this</span>.fileWatchService.start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="RemotingService"><a href="#RemotingService" class="headerlink" title="RemotingService"></a>RemotingService</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">RemotingService</span> &#123;</span><br><span class="line">    <span class="comment">//这个start的实现类分两种，一个是客户端的，一个是服务端的，都是借助了netty来完成的</span></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">start</span><span class="params">()</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">shutdown</span><span class="params">()</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">registerRPCHook</span><span class="params">(RPCHook rpcHook)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="初始化NameServerController"><a href="#初始化NameServerController" class="headerlink" title="初始化NameServerController"></a>初始化NameServerController</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">initialize</span><span class="params">()</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">this</span>.kvConfigManager.load();</span><br><span class="line"></span><br><span class="line">    <span class="built_in">this</span>.remotingServer = <span class="keyword">new</span> <span class="title class_">NettyRemotingServer</span>(<span class="built_in">this</span>.nettyServerConfig, <span class="built_in">this</span>.brokerHousekeepingService);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">this</span>.remotingExecutor =</span><br><span class="line">        Executors.newFixedThreadPool(nettyServerConfig.getServerWorkerThreads(), <span class="keyword">new</span> <span class="title class_">ThreadFactoryImpl</span>(<span class="string">&quot;RemotingExecutorThread_&quot;</span>));</span><br><span class="line"></span><br><span class="line">    <span class="built_in">this</span>.registerProcessor();</span><br><span class="line"></span><br><span class="line">    <span class="built_in">this</span>.scheduledExecutorService.scheduleAtFixedRate(<span class="keyword">new</span> <span class="title class_">Runnable</span>() &#123;</span><br><span class="line">        <span class="comment">//每隔10秒就要进行一次扫描，扫描出来所有已经掉线的broker，第一次延迟五秒</span></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">            NamesrvController.<span class="built_in">this</span>.routeInfoManager.scanNotActiveBroker();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;, <span class="number">5</span>, <span class="number">10</span>, TimeUnit.SECONDS);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">this</span>.scheduledExecutorService.scheduleAtFixedRate(<span class="keyword">new</span> <span class="title class_">Runnable</span>() &#123;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">            NamesrvController.<span class="built_in">this</span>.kvConfigManager.printAllPeriodically();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;, <span class="number">1</span>, <span class="number">10</span>, TimeUnit.MINUTES);</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="RouteInfoManager"><a href="#RouteInfoManager" class="headerlink" title="RouteInfoManager"></a>RouteInfoManager</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//过期时间是两分钟</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> <span class="type">long</span> <span class="variable">BROKER_CHANNEL_EXPIRED_TIME</span> <span class="operator">=</span> <span class="number">1000</span> * <span class="number">60</span> * <span class="number">2</span>;</span><br><span class="line"><span class="comment">//扫描出所有已经掉线的broker</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">scanNotActiveBroker</span><span class="params">()</span> &#123;</span><br><span class="line">    Iterator&lt;Entry&lt;String, BrokerLiveInfo&gt;&gt; it = <span class="built_in">this</span>.brokerLiveTable.entrySet().iterator();</span><br><span class="line">    <span class="keyword">while</span> (it.hasNext()) &#123;</span><br><span class="line">        Entry&lt;String, BrokerLiveInfo&gt; next = it.next();</span><br><span class="line">        <span class="type">long</span> <span class="variable">last</span> <span class="operator">=</span> next.getValue().getLastUpdateTimestamp();</span><br><span class="line">        <span class="keyword">if</span> ((last + BROKER_CHANNEL_EXPIRED_TIME) &lt; System.currentTimeMillis()) &#123;</span><br><span class="line">            RemotingUtil.closeChannel(next.getValue().getChannel());</span><br><span class="line">            it.remove();</span><br><span class="line">            log.warn(<span class="string">&quot;The broker channel expired, &#123;&#125; &#123;&#125;ms&quot;</span>, next.getKey(), BROKER_CHANNEL_EXPIRED_TIME);</span><br><span class="line">            <span class="built_in">this</span>.onChannelDestroy(next.getKey(), next.getValue().getChannel());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="broker注册到nameserver"><a href="#broker注册到nameserver" class="headerlink" title="broker注册到nameserver"></a>broker注册到nameserver</h2><h3 id="NamesrvController"><a href="#NamesrvController" class="headerlink" title="NamesrvController"></a>NamesrvController</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">registerProcessor</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (namesrvConfig.isClusterTest()) &#123;</span><br><span class="line"></span><br><span class="line">        <span class="built_in">this</span>.remotingServer.registerDefaultProcessor(<span class="keyword">new</span> <span class="title class_">ClusterTestRequestProcessor</span>(<span class="built_in">this</span>, namesrvConfig.getProductEnvName()),</span><br><span class="line">            <span class="built_in">this</span>.remotingExecutor);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">//nameservier默认的请求注册进入了，都交给nettyserver来进行处理</span></span><br><span class="line">        <span class="built_in">this</span>.remotingServer.registerDefaultProcessor(<span class="keyword">new</span> <span class="title class_">DefaultRequestProcessor</span>(<span class="built_in">this</span>), <span class="built_in">this</span>.remotingExecutor);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="DefaultRequestProcessor"><a href="#DefaultRequestProcessor" class="headerlink" title="DefaultRequestProcessor"></a>DefaultRequestProcessor</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">switch</span> (request.getCode()) &#123;</span><br><span class="line">    <span class="keyword">case</span> RequestCode.PUT_KV_CONFIG:</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">this</span>.putKVConfig(ctx, request);</span><br><span class="line">    <span class="keyword">case</span> RequestCode.GET_KV_CONFIG:</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">this</span>.getKVConfig(ctx, request);</span><br><span class="line">    <span class="keyword">case</span> RequestCode.DELETE_KV_CONFIG:</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">this</span>.deleteKVConfig(ctx, request);</span><br><span class="line">    <span class="keyword">case</span> RequestCode.QUERY_DATA_VERSION:</span><br><span class="line">        <span class="keyword">return</span> queryBrokerTopicConfig(ctx, request);</span><br><span class="line">        <span class="comment">//将broker的请求注册到nameserver中</span></span><br><span class="line">    <span class="keyword">case</span> RequestCode.REGISTER_BROKER:</span><br><span class="line">        <span class="type">Version</span> <span class="variable">brokerVersion</span> <span class="operator">=</span> MQVersion.value2Version(request.getVersion());</span><br><span class="line">        <span class="keyword">if</span> (brokerVersion.ordinal() &gt;= MQVersion.Version.V3_0_11.ordinal()) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="built_in">this</span>.registerBrokerWithFilterServer(ctx, request);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">//注册broker到nameserver</span></span><br><span class="line">            <span class="keyword">return</span> <span class="built_in">this</span>.registerBroker(ctx, request);</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//调用了namesrvController.getRouteInfoManager().registerBroker方法真正将broker注册到nameserver中了</span></span><br><span class="line">        <span class="type">RegisterBrokerResult</span> <span class="variable">result</span> <span class="operator">=</span> <span class="built_in">this</span>.namesrvController.getRouteInfoManager().registerBroker(</span><br><span class="line">            requestHeader.getClusterName(),</span><br><span class="line">            requestHeader.getBrokerAddr(),</span><br><span class="line">            requestHeader.getBrokerName(),</span><br><span class="line">            requestHeader.getBrokerId(),</span><br><span class="line">            requestHeader.getHaServerAddr(),</span><br><span class="line">            topicConfigWrapper,</span><br><span class="line">            <span class="literal">null</span>,</span><br><span class="line">            ctx.channel()</span><br><span class="line">        );</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br></pre></td><td class="code"><pre><span class="line">    <span class="keyword">public</span> RegisterBrokerResult <span class="title function_">registerBroker</span><span class="params">(</span></span><br><span class="line"><span class="params">        <span class="keyword">final</span> String clusterName,</span></span><br><span class="line"><span class="params">        <span class="keyword">final</span> String brokerAddr,</span></span><br><span class="line"><span class="params">        <span class="keyword">final</span> String brokerName,</span></span><br><span class="line"><span class="params">        <span class="keyword">final</span> <span class="type">long</span> brokerId,</span></span><br><span class="line"><span class="params">        <span class="keyword">final</span> String haServerAddr,</span></span><br><span class="line"><span class="params">        <span class="keyword">final</span> TopicConfigSerializeWrapper topicConfigWrapper,</span></span><br><span class="line"><span class="params">        <span class="keyword">final</span> List&lt;String&gt; filterServerList,</span></span><br><span class="line"><span class="params">        <span class="keyword">final</span> Channel channel)</span> &#123;</span><br><span class="line">        <span class="type">RegisterBrokerResult</span> <span class="variable">result</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">RegisterBrokerResult</span>();</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">//加锁，同一时间只能有一个线程访问</span></span><br><span class="line">                <span class="built_in">this</span>.lock.writeLock().lockInterruptibly();</span><br><span class="line"><span class="comment">//根据clusterName获取到了一个set，之后每隔30秒发送的请求是没有影响的，set会自动去重的</span></span><br><span class="line">                Set&lt;String&gt; brokerNames = <span class="built_in">this</span>.clusterAddrTable.get(clusterName);</span><br><span class="line">                <span class="keyword">if</span> (<span class="literal">null</span> == brokerNames) &#123;</span><br><span class="line">                    brokerNames = <span class="keyword">new</span> <span class="title class_">HashSet</span>&lt;String&gt;();</span><br><span class="line">                    <span class="built_in">this</span>.clusterAddrTable.put(clusterName, brokerNames);</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="comment">//将broker添加到一个集群里面</span></span><br><span class="line">                brokerNames.add(brokerName);</span><br><span class="line"></span><br><span class="line">                <span class="type">boolean</span> <span class="variable">registerFirst</span> <span class="operator">=</span> <span class="literal">false</span>;</span><br><span class="line"><span class="comment">//根据brokername获取到brokerdata</span></span><br><span class="line"><span class="comment">//brokerAddrTable存放了所有broker的详细路由信息</span></span><br><span class="line">                <span class="type">BrokerData</span> <span class="variable">brokerData</span> <span class="operator">=</span> <span class="built_in">this</span>.brokerAddrTable.get(brokerName);</span><br><span class="line">                <span class="comment">//如果broker第第一次进行注册，brokerDate会是null，会new一个BrokerData，将路由信息放入brokerAddrTable中</span></span><br><span class="line">                <span class="keyword">if</span> (<span class="literal">null</span> == brokerData) &#123;</span><br><span class="line">                    registerFirst = <span class="literal">true</span>;</span><br><span class="line">                    brokerData = <span class="keyword">new</span> <span class="title class_">BrokerData</span>(clusterName, brokerName, <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;Long, String&gt;());</span><br><span class="line">                    <span class="built_in">this</span>.brokerAddrTable.put(brokerName, brokerData);</span><br><span class="line">                &#125;</span><br><span class="line">                Map&lt;Long, String&gt; brokerAddrsMap = brokerData.getBrokerAddrs();</span><br><span class="line">                <span class="comment">//Switch slave to master: first remove &lt;1, IP:PORT&gt; in namesrv, then add &lt;0, IP:PORT&gt;</span></span><br><span class="line">                <span class="comment">//The same IP:PORT must only have one record in brokerAddrTable</span></span><br><span class="line">                Iterator&lt;Entry&lt;Long, String&gt;&gt; it = brokerAddrsMap.entrySet().iterator();</span><br><span class="line">                <span class="keyword">while</span> (it.hasNext()) &#123;</span><br><span class="line">                    Entry&lt;Long, String&gt; item = it.next();</span><br><span class="line">                    <span class="keyword">if</span> (<span class="literal">null</span> != brokerAddr &amp;&amp; brokerAddr.equals(item.getValue()) &amp;&amp; brokerId != item.getKey()) &#123;</span><br><span class="line">                        it.remove();</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                <span class="type">String</span> <span class="variable">oldAddr</span> <span class="operator">=</span> brokerData.getBrokerAddrs().put(brokerId, brokerAddr);</span><br><span class="line">                registerFirst = registerFirst || (<span class="literal">null</span> == oldAddr);</span><br><span class="line"></span><br><span class="line">                <span class="keyword">if</span> (<span class="literal">null</span> != topicConfigWrapper</span><br><span class="line">                    &amp;&amp; MixAll.MASTER_ID == brokerId) &#123;</span><br><span class="line">                    <span class="keyword">if</span> (<span class="built_in">this</span>.isBrokerTopicConfigChanged(brokerAddr, topicConfigWrapper.getDataVersion())</span><br><span class="line">                        || registerFirst) &#123;</span><br><span class="line">                        ConcurrentMap&lt;String, TopicConfig&gt; tcTable =</span><br><span class="line">                            topicConfigWrapper.getTopicConfigTable();</span><br><span class="line">                        <span class="keyword">if</span> (tcTable != <span class="literal">null</span>) &#123;</span><br><span class="line">                            <span class="keyword">for</span> (Map.Entry&lt;String, TopicConfig&gt; entry : tcTable.entrySet()) &#123;</span><br><span class="line">                                <span class="built_in">this</span>.createAndUpdateQueueData(brokerName, entry.getValue());</span><br><span class="line">                            &#125;</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line"><span class="comment">//这里是broker心跳的核心处理逻辑</span></span><br><span class="line"><span class="comment">//默认每隔30秒就会有一个新的BrokerLiveInfo被put到brokerLiveTable，覆盖上一次的心跳时间</span></span><br><span class="line"><span class="comment">//BrokerLiveInfo里面的这个 System.currentTimeMillis(),当前时间戳就是broker最新的心跳时间</span></span><br><span class="line">                <span class="type">BrokerLiveInfo</span> <span class="variable">prevBrokerLiveInfo</span> <span class="operator">=</span> <span class="built_in">this</span>.brokerLiveTable.put(brokerAddr,</span><br><span class="line">                    <span class="keyword">new</span> <span class="title class_">BrokerLiveInfo</span>(</span><br><span class="line">                        System.currentTimeMillis(),</span><br><span class="line">                        topicConfigWrapper.getDataVersion(),</span><br><span class="line">                        channel,</span><br><span class="line">                        haServerAddr));</span><br><span class="line">                <span class="keyword">if</span> (<span class="literal">null</span> == prevBrokerLiveInfo) &#123;</span><br><span class="line">                    log.info(<span class="string">&quot;new broker registered, &#123;&#125; HAServer: &#123;&#125;&quot;</span>, brokerAddr, haServerAddr);</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                <span class="keyword">if</span> (filterServerList != <span class="literal">null</span>) &#123;</span><br><span class="line">                    <span class="keyword">if</span> (filterServerList.isEmpty()) &#123;</span><br><span class="line">                        <span class="built_in">this</span>.filterServerTable.remove(brokerAddr);</span><br><span class="line">                    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                        <span class="built_in">this</span>.filterServerTable.put(brokerAddr, filterServerList);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                <span class="keyword">if</span> (MixAll.MASTER_ID != brokerId) &#123;</span><br><span class="line">                    <span class="type">String</span> <span class="variable">masterAddr</span> <span class="operator">=</span> brokerData.getBrokerAddrs().get(MixAll.MASTER_ID);</span><br><span class="line">                    <span class="keyword">if</span> (masterAddr != <span class="literal">null</span>) &#123;</span><br><span class="line">                        <span class="type">BrokerLiveInfo</span> <span class="variable">brokerLiveInfo</span> <span class="operator">=</span> <span class="built_in">this</span>.brokerLiveTable.get(masterAddr);</span><br><span class="line">                        <span class="keyword">if</span> (brokerLiveInfo != <span class="literal">null</span>) &#123;</span><br><span class="line">                            result.setHaServerAddr(brokerLiveInfo.getHaServerAddr());</span><br><span class="line">                            result.setMasterAddr(masterAddr);</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">                <span class="built_in">this</span>.lock.writeLock().unlock();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            log.error(<span class="string">&quot;registerBroker Exception&quot;</span>, e);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/rocketmq/" rel="tag"># rocketmq</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/03/27/rocketmq/" rel="prev" title="rocketmq">
+                  <i class="fa fa-angle-left"></i> rocketmq
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/03/27/Synchronized/" rel="next" title="Synchronized">
+                  Synchronized <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">流殃</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

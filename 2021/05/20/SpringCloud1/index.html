@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"www.sunheyi.cn","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="文章摘要">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SpringCloud1">
+<meta property="og:url" content="https://www.sunheyi.cn/2021/05/20/SpringCloud1/index.html">
+<meta property="og:site_name" content="流殃">
+<meta property="og:description" content="文章摘要">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://gitee.com/flow_disaster/blog-map-bed/raw/master/img/image-20210520103022522.png">
+<meta property="og:image" content="https://gitee.com/flow_disaster/blog-map-bed/raw/master/img/image-20210520103056022.png">
+<meta property="og:image" content="https://gitee.com/flow_disaster/blog-map-bed/raw/master/img/image-20210520103108643.png">
+<meta property="og:image" content="https://gitee.com/flow_disaster/blog-map-bed/raw/master/img/image-20210520103206520.png">
+<meta property="og:image" content="https://gitee.com/flow_disaster/blog-map-bed/raw/master/img/image-20210520103340803.png">
+<meta property="og:image" content="https://gitee.com/flow_disaster/blog-map-bed/raw/master/img/image-20210520103304727.png">
+<meta property="og:image" content="https://gitee.com/flow_disaster/blog-map-bed/raw/master/img/image-20210520103250856.png">
+<meta property="article:published_time" content="2021-05-20T02:28:11.000Z">
+<meta property="article:modified_time" content="2023-11-25T09:03:40.738Z">
+<meta property="article:author" content="流殃">
+<meta property="article:tag" content="SpringCloud">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://gitee.com/flow_disaster/blog-map-bed/raw/master/img/image-20210520103022522.png">
+
+
+<link rel="canonical" href="https://www.sunheyi.cn/2021/05/20/SpringCloud1/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://www.sunheyi.cn/2021/05/20/SpringCloud1/","path":"2021/05/20/SpringCloud1/","title":"SpringCloud1"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>SpringCloud1 | 流殃</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">流殃</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">欢迎来到我的博客</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A0%B8%E5%BF%83%E9%97%AE%E9%A2%98"><span class="nav-number">1.</span> <span class="nav-text">核心问题</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%AE%A4%E8%AF%86Spring-Cloud"><span class="nav-number">2.</span> <span class="nav-text">认识Spring Cloud</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Spring-Cloud-NetFlix"><span class="nav-number">3.</span> <span class="nav-text">Spring Cloud  NetFlix</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Eureka"><span class="nav-number">3.1.</span> <span class="nav-text">Eureka</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9B%86%E7%BE%A4%E6%A8%A1%E5%BC%8F"><span class="nav-number">3.1.1.</span> <span class="nav-text">集群模式</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Eureka%E4%BC%98%E5%8C%96"><span class="nav-number">3.2.</span> <span class="nav-text">Eureka优化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Eureka%E5%92%8CZookeeper%E5%8C%BA%E5%88%AB"><span class="nav-number">3.3.</span> <span class="nav-text">Eureka和Zookeeper区别</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Feign"><span class="nav-number">3.4.</span> <span class="nav-text">Feign</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Ribbon"><span class="nav-number">3.5.</span> <span class="nav-text">Ribbon</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Hystrix"><span class="nav-number">3.6.</span> <span class="nav-text">Hystrix</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Zuul"><span class="nav-number">3.7.</span> <span class="nav-text">Zuul</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#zookeeper"><span class="nav-number">4.</span> <span class="nav-text">zookeeper</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BD%91%E5%85%B3"><span class="nav-number">5.</span> <span class="nav-text">网关</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A0%B8%E5%BF%83%E5%8A%9F%E8%83%BD"><span class="nav-number">5.1.</span> <span class="nav-text">核心功能</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#zuul"><span class="nav-number">5.2.</span> <span class="nav-text">zuul</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">流殃</p>
+  <div class="site-description" itemprop="description">用微笑面对生活</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">87</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">33</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://www.sunheyi.cn/2021/05/20/SpringCloud1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="流殃">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="流殃">
+      <meta itemprop="description" content="用微笑面对生活">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="SpringCloud1 | 流殃">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          SpringCloud1
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-05-20 10:28:11" itemprop="dateCreated datePublished" datetime="2021-05-20T10:28:11+08:00">2021-05-20</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2023-11-25 17:03:40" itemprop="dateModified" datetime="2023-11-25T17:03:40+08:00">2023-11-25</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>文章摘要</p>
+<span id="more"></span>
+
+<p>SpringCloudNetFlix</p>
+<h1 id="核心问题"><a href="#核心问题" class="headerlink" title="核心问题"></a>核心问题</h1><p>微服务架构核心问题</p>
+<ol>
+<li>服务很多，客户端如何访问</li>
+<li>这么多服务，服务之间如何通信</li>
+<li>如何治理服务</li>
+<li>服务挂了怎么办</li>
+</ol>
+<p>解决方案</p>
+<p>Spring Cloud 生态</p>
+<ol>
+<li>Spring Cloud  NetFlix   一站式解决方案！</li>
+</ol>
+<ul>
+<li>api网关：zuul组件</li>
+<li>服务调用 Feign–HttpClinet   http通信方式。同步 阻塞</li>
+<li>服务注册发现 Eureka</li>
+<li>熔断机制 Hystrix</li>
+<li>负载均衡 ribbon</li>
+</ul>
+<ol>
+<li>Apache Dubbo Zookeeper  半自动，需要整合别人的</li>
+</ol>
+<ul>
+<li>api：没有，用第三方插件，或者自己实现</li>
+<li>Dubbo</li>
+<li>Zookeeper</li>
+<li>没有，借助 Hystrix</li>
+</ul>
+<ol>
+<li>Spring Cloud Alibaba   最新的 一站式解决方案  更简单</li>
+</ol>
+<h1 id="认识Spring-Cloud"><a href="#认识Spring-Cloud" class="headerlink" title="认识Spring Cloud"></a>认识Spring Cloud</h1><p>springboot专注于快速、方便的开发单个个体微服务，springCloud关注全局协调的微服务框架</p>
+<p>现在大型网站的架构图</p>
+<p><img src="https://gitee.com/flow_disaster/blog-map-bed/raw/master/img/image-20210520103022522.png" alt="image-20210520103022522"></p>
+<h1 id="Spring-Cloud-NetFlix"><a href="#Spring-Cloud-NetFlix" class="headerlink" title="Spring Cloud  NetFlix"></a>Spring Cloud  NetFlix</h1><h2 id="Eureka"><a href="#Eureka" class="headerlink" title="Eureka"></a>Eureka</h2><p>服务注册和服务发现</p>
+<p>必须要进行参数优化，否则速度太慢</p>
+<p>nacos zookeeper rockemq中的nameserver也是这个作用</p>
+<p>consul</p>
+<p><img src="https://gitee.com/flow_disaster/blog-map-bed/raw/master/img/image-20210520103056022.png" alt="image-20210520103056022"></p>
+<p>为什么要搞两级缓存</p>
+<p>目的就是为了避免并发冲突</p>
+<h3 id="集群模式"><a href="#集群模式" class="headerlink" title="集群模式"></a>集群模式</h3><p><img src="https://gitee.com/flow_disaster/blog-map-bed/raw/master/img/image-20210520103108643.png" alt="image-20210520103108643"></p>
+<h2 id="Eureka优化"><a href="#Eureka优化" class="headerlink" title="Eureka优化"></a>Eureka优化</h2><p><img src="https://gitee.com/flow_disaster/blog-map-bed/raw/master/img/image-20210520103206520.png" alt="image-20210520103206520"></p>
+<h2 id="Eureka和Zookeeper区别"><a href="#Eureka和Zookeeper区别" class="headerlink" title="Eureka和Zookeeper区别"></a>Eureka和Zookeeper区别</h2><p>CAP理论：</p>
+<ul>
+<li>C 一致性</li>
+<li>A 可用性</li>
+<li>P 容错性</li>
+</ul>
+<p>由于分区容错P在分布式系统中是必须要保证的，因此，偶问你只能在A和P之间进行权衡</p>
+<ul>
+<li>Zookeeper保证的是CP</li>
+<li>Eureka保证的是AP</li>
+</ul>
+<h2 id="Feign"><a href="#Feign" class="headerlink" title="Feign"></a>Feign</h2><p>服务调用</p>
+<p>整合eureka和ribbon</p>
+<p>Feign是面向接口的</p>
+<h2 id="Ribbon"><a href="#Ribbon" class="headerlink" title="Ribbon"></a>Ribbon</h2><p>负载均衡</p>
+<p>服务第一次被调用的时候，他会初始话一个ribbon组件，初始化这些组件可能会耗费一定时间，所以很容易导致服务超时。开启下面参数，让每个服务启动的时候就直接初始化ribbon相关的组件，避免第一次请求的时候初始化</p>
+<p><img src="https://gitee.com/flow_disaster/blog-map-bed/raw/master/img/image-20210520103340803.png" alt="image-20210520103340803"></p>
+<h2 id="Hystrix"><a href="#Hystrix" class="headerlink" title="Hystrix"></a>Hystrix</h2><p>服务熔断在服务端</p>
+<p>服务降级在客户端</p>
+<blockquote>
+<p>服务熔断</p>
+</blockquote>
+<ol>
+<li>定义：某个服务超时或者异常，引起熔断   类似于保险丝的作用</li>
+<li>一般发生在服务端</li>
+</ol>
+<blockquote>
+<p>服务降级</p>
+</blockquote>
+<ol>
+<li>定义：从整体网站请求负载考虑，当前某些服务访问量比较大，会暂时关闭一些访问量比较小的服务，将整个网站的资源倾斜在访问量比较大的服务上，等到访问量下来，就重新开启那些服务；此时在客户端上，我们可以准备一个FallbackFactory，返回默认的值，提示用户当前的服务不可用</li>
+<li>一般发生在客户端</li>
+</ol>
+<h2 id="Zuul"><a href="#Zuul" class="headerlink" title="Zuul"></a>Zuul</h2><p>路由网关，用户一进来接触的组件就是路由网关</p>
+<p><img src="https://gitee.com/flow_disaster/blog-map-bed/raw/master/img/image-20210520103304727.png" alt="image-20210520103304727"></p>
+<p>主要功能：</p>
+<ul>
+<li>路由</li>
+<li>过滤</li>
+</ul>
+<p>zuul服务最终还是会注册到Eureka中</p>
+<h1 id="zookeeper"><a href="#zookeeper" class="headerlink" title="zookeeper"></a>zookeeper</h1><p><img src="https://gitee.com/flow_disaster/blog-map-bed/raw/master/img/image-20210520103250856.png" alt="image-20210520103250856"></p>
+<h1 id="网关"><a href="#网关" class="headerlink" title="网关"></a>网关</h1><h2 id="核心功能"><a href="#核心功能" class="headerlink" title="核心功能"></a>核心功能</h2><ol>
+<li>动态路由</li>
+<li>灰度发布</li>
+<li>授权认证</li>
+<li>性能监控</li>
+<li>系统日志</li>
+<li>数据缓存</li>
+<li>限流熔断</li>
+</ol>
+<p>kong zuul ngnix+lua（openresty） 自研网关</p>
+<p>大厂基本上都是基于netty做的自有网关</p>
+<p>zuul：基于java开发，功能比较简单，但是比如灰度发布，限流，动态路由等没有这些功能</p>
+<p>kong：依托于ngnix实现，openresty，lua实现的模块，现成的一些插件，可以直接使用</p>
+<h2 id="zuul"><a href="#zuul" class="headerlink" title="zuul"></a>zuul</h2><p>一般来讲一台8核16g的zuul每秒抗1000+不成问题</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/SpringCloud/" rel="tag"># SpringCloud</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/05/19/RabbitMQ/" rel="prev" title="RabbitMQ">
+                  <i class="fa fa-angle-left"></i> RabbitMQ
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/05/22/ThreadPoolExecutor/" rel="next" title="ThreadPoolExecutor">
+                  ThreadPoolExecutor <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">流殃</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

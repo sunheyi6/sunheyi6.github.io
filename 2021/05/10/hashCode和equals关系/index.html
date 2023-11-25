@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"www.sunheyi.cn","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="详细对比hashCode和equals">
+<meta property="og:type" content="article">
+<meta property="og:title" content="hashCode和equals关系">
+<meta property="og:url" content="https://www.sunheyi.cn/2021/05/10/hashCode%E5%92%8Cequals%E5%85%B3%E7%B3%BB/index.html">
+<meta property="og:site_name" content="流殃">
+<meta property="og:description" content="详细对比hashCode和equals">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-05-10T09:37:29.000Z">
+<meta property="article:modified_time" content="2023-11-25T09:03:40.738Z">
+<meta property="article:author" content="流殃">
+<meta property="article:tag" content="java">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://www.sunheyi.cn/2021/05/10/hashCode%E5%92%8Cequals%E5%85%B3%E7%B3%BB/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://www.sunheyi.cn/2021/05/10/hashCode%E5%92%8Cequals%E5%85%B3%E7%B3%BB/","path":"2021/05/10/hashCode和equals关系/","title":"hashCode和equals关系"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>hashCode和equals关系 | 流殃</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">流殃</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">欢迎来到我的博客</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#hashCode-%E5%92%8Cequals-%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-number">1.</span> <span class="nav-text">hashCode()和equals()是什么？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#hashCode-%E5%92%8Cequals-%E5%8C%BA%E5%88%AB%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-number">2.</span> <span class="nav-text">hashCode()和equals()区别是什么？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%A7%E8%83%BD"><span class="nav-number">2.1.</span> <span class="nav-text">性能</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%AF%E9%9D%A0%E6%80%A7"><span class="nav-number">2.2.</span> <span class="nav-text">可靠性</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BA%E4%BD%95%E9%87%8D%E5%86%99equals%E4%B9%9F%E8%A6%81%E9%87%8D%E5%86%99hashcode"><span class="nav-number">3.</span> <span class="nav-text">为何重写equals也要重写hashcode</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88equals-%E7%9B%B8%E7%AD%89%EF%BC%8ChashCode%E5%B0%B1%E4%B8%80%E5%AE%9A%E8%A6%81%E7%9B%B8%E7%AD%89%EF%BC%8C%E8%80%8ChashCode%E7%9B%B8%E7%AD%89%EF%BC%8C%E5%8D%B4%E4%B8%8D%E8%A6%81%E6%B1%82equals%E7%9B%B8%E7%AD%89"><span class="nav-number">4.</span> <span class="nav-text">为什么equals()相等，hashCode就一定要相等，而hashCode相等，却不要求equals相等?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%98%BF%E9%87%8C%E7%9B%B8%E5%85%B3%E7%BA%A6%E6%9D%9F"><span class="nav-number">5.</span> <span class="nav-text">阿里相关约束</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">流殃</p>
+  <div class="site-description" itemprop="description">用微笑面对生活</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">87</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">33</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://www.sunheyi.cn/2021/05/10/hashCode%E5%92%8Cequals%E5%85%B3%E7%B3%BB/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="流殃">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="流殃">
+      <meta itemprop="description" content="用微笑面对生活">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="hashCode和equals关系 | 流殃">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          hashCode和equals关系
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-05-10 17:37:29" itemprop="dateCreated datePublished" datetime="2021-05-10T17:37:29+08:00">2021-05-10</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2023-11-25 17:03:40" itemprop="dateModified" datetime="2023-11-25T17:03:40+08:00">2023-11-25</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p> 详细对比hashCode和equals</p>
+<span id="more"></span>
+
+<h2 id="hashCode-和equals-是什么？"><a href="#hashCode-和equals-是什么？" class="headerlink" title="hashCode()和equals()是什么？"></a><strong>hashCode()和equals()是什么？</strong></h2><p>hashCode()方法和equals()方法的作用其实一样，在Java里都是用来对比两个对象是否相等一致。</p>
+<h2 id="hashCode-和equals-区别是什么？"><a href="#hashCode-和equals-区别是什么？" class="headerlink" title="hashCode()和equals()区别是什么？"></a>hashCode()和equals()区别是什么？</h2><h3 id="性能"><a href="#性能" class="headerlink" title="性能"></a>性能</h3><p>就性能来说，肯定是hashcode更快一下，毕竟只需要比较hashcode值就好</p>
+<p>equals的话，比如String类型，如果是字符串比较大的话，比较起来就比较慢，如果字符串比较小的话，就比较快</p>
+<h3 id="可靠性"><a href="#可靠性" class="headerlink" title="可靠性"></a>可靠性</h3><ul>
+<li>equals()相等的两个对象他们的hashCode()肯定相等，也就是用equals()对比是绝对可靠的。</li>
+<li>hashCode()相等的两个对象他们的equals()不一定相等，也就是hashCode()不是绝对可靠的。</li>
+</ul>
+<h2 id="为何重写equals也要重写hashcode"><a href="#为何重写equals也要重写hashcode" class="headerlink" title="为何重写equals也要重写hashcode"></a>为何重写equals也要重写hashcode</h2><p>如果你重写了equals，比如说是基于对象的内容实现的，而保留hashCode的实现不变，那么很可能某两个对象明明是“相等”，而hashCode却不一样。</p>
+<p>这样，当你用其中的一个作为键保存到hashMap、hasoTable或hashSet中，再以“相等的”找另一个作为键值去查找他们的时候，则根本找不到。</p>
+<h2 id="为什么equals-相等，hashCode就一定要相等，而hashCode相等，却不要求equals相等"><a href="#为什么equals-相等，hashCode就一定要相等，而hashCode相等，却不要求equals相等" class="headerlink" title="为什么equals()相等，hashCode就一定要相等，而hashCode相等，却不要求equals相等?"></a><strong>为什么equals()相等，hashCode就一定要相等，而hashCode相等，却不要求equals相等?</strong></h2><ul>
+<li>因为是按照hashCode来访问小内存块，所以hashCode必须相等。</li>
+<li>HashMap获取一个对象是比较key的hashCode相等和equals为true。</li>
+</ul>
+<p>之所以hashCode相等，却可以equal不等，就比如ObjectA和ObjectB他们都有属性name，那么hashCode都以name计算，所以hashCode一样，但是两个对象属于不同类型，所以equals为false。</p>
+<h2 id="阿里相关约束"><a href="#阿里相关约束" class="headerlink" title="阿里相关约束"></a>阿里相关约束</h2><ul>
+<li>只要重写 equals，就必须重写 hashCode；</li>
+<li>因为 Set 存储的是不重复的对象，依据 hashCode 和 equals 进行判断，所以 Set 存储的对象必须重写这两个方法；</li>
+<li>如果自定义对象做为 Map 的键，那么必须重写 hashCode 和 equals；</li>
+<li>String 重写了 hashCode 和 equals 方法，所以我们可以非常愉快地使用 String 对象作为 key 来使用；</li>
+</ul>
+<blockquote>
+<p>参考链接：</p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/58337357">https://zhuanlan.zhihu.com/p/58337357</a></p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/java/" rel="tag"># java</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/05/08/redis%E6%8C%81%E4%B9%85%E5%8C%96/" rel="prev" title="redis持久化">
+                  <i class="fa fa-angle-left"></i> redis持久化
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/05/10/Spring%E6%B3%A8%E8%A7%A3/" rel="next" title="Spring注解">
+                  Spring注解 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">流殃</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

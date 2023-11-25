@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"www.sunheyi.cn","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="事务">
+<meta property="og:type" content="article">
+<meta property="og:title" content="mysql事务">
+<meta property="og:url" content="https://www.sunheyi.cn/2021/03/29/mysql%E4%BA%8B%E5%8A%A1/index.html">
+<meta property="og:site_name" content="流殃">
+<meta property="og:description" content="事务">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://gitee.com/flow_disaster/blog-map-bed/raw/master/img/image-20210331111047071.png">
+<meta property="og:image" content="https://gitee.com/flow_disaster/blog-map-bed/raw/master/img/image-20210331123304477.png">
+<meta property="og:image" content="https://gitee.com/flow_disaster/blog-map-bed/raw/master/img/image-20210331195633044.png">
+<meta property="article:published_time" content="2021-03-29T06:54:54.000Z">
+<meta property="article:modified_time" content="2023-11-25T09:03:40.742Z">
+<meta property="article:author" content="流殃">
+<meta property="article:tag" content="mysql">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://gitee.com/flow_disaster/blog-map-bed/raw/master/img/image-20210331111047071.png">
+
+
+<link rel="canonical" href="https://www.sunheyi.cn/2021/03/29/mysql%E4%BA%8B%E5%8A%A1/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://www.sunheyi.cn/2021/03/29/mysql%E4%BA%8B%E5%8A%A1/","path":"2021/03/29/mysql事务/","title":"mysql事务"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>mysql事务 | 流殃</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">流殃</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">欢迎来到我的博客</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8B%E5%8A%A1"><span class="nav-number">1.</span> <span class="nav-text">事务</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98"><span class="nav-number">1.1.</span> <span class="nav-text">常见问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%84%8F%E5%86%99"><span class="nav-number">1.1.1.</span> <span class="nav-text">脏写</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%84%8F%E8%AF%BB"><span class="nav-number">1.1.2.</span> <span class="nav-text">脏读</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%8D%E5%8F%AF%E9%87%8D%E5%A4%8D%E8%AF%BB"><span class="nav-number">1.1.3.</span> <span class="nav-text">不可重复读</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B9%BB%E8%AF%BB"><span class="nav-number">1.1.4.</span> <span class="nav-text">幻读</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%95%BF%E4%BA%8B%E5%8A%A1"><span class="nav-number">1.1.5.</span> <span class="nav-text">长事务</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B0%BD%E9%87%8F%E4%B8%8D%E8%A6%81%E4%BD%BF%E7%94%A8%E9%95%BF%E4%BA%8B%E5%8A%A1"><span class="nav-number">1.1.5.1.</span> <span class="nav-text">尽量不要使用长事务</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9F%A5%E8%AF%A2%E5%B0%9D%E4%BA%8B%E5%8A%A1"><span class="nav-number">1.1.5.2.</span> <span class="nav-text">查询尝事务</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%A7%E5%88%AB"><span class="nav-number">1.2.</span> <span class="nav-text">级别</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%AA%E6%8F%90%E4%BA%A4"><span class="nav-number">1.2.1.</span> <span class="nav-text">未提交</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AF%BB%E6%8F%90%E4%BA%A4%EF%BC%88RC%EF%BC%89"><span class="nav-number">1.2.2.</span> <span class="nav-text">读提交（RC）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%AF%E9%87%8D%E5%A4%8D%E8%AF%BB%EF%BC%88RR%EF%BC%89"><span class="nav-number">1.2.3.</span> <span class="nav-text">可重复读（RR）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%B2%E8%A1%8C%E5%8C%96"><span class="nav-number">1.2.4.</span> <span class="nav-text">串行化</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MVCC"><span class="nav-number">1.3.</span> <span class="nav-text">MVCC</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#undolog%E7%89%88%E6%9C%AC%E9%93%BE"><span class="nav-number">1.3.1.</span> <span class="nav-text">undolog版本链</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ReadView"><span class="nav-number">1.3.2.</span> <span class="nav-text">ReadView</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9B%9B%E4%B8%AA%E5%8F%82%E6%95%B0"><span class="nav-number">1.3.2.1.</span> <span class="nav-text">四个参数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%89%A7%E8%A1%8C%E8%BF%87%E7%A8%8B"><span class="nav-number">1.3.2.2.</span> <span class="nav-text">执行过程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#RC"><span class="nav-number">1.3.2.3.</span> <span class="nav-text">RC</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#RR"><span class="nav-number">1.3.2.4.</span> <span class="nav-text">RR</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%AF%E5%8A%A8%E6%96%B9%E5%BC%8F"><span class="nav-number">1.4.</span> <span class="nav-text">启动方式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8B%E5%8A%A1%E4%BC%A0%E6%92%AD"><span class="nav-number">1.5.</span> <span class="nav-text">事务传播</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#REQUIRED"><span class="nav-number">1.5.0.1.</span> <span class="nav-text">REQUIRED</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SUPPORTS"><span class="nav-number">1.5.0.2.</span> <span class="nav-text">SUPPORTS</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#MANDATORY"><span class="nav-number">1.5.0.3.</span> <span class="nav-text">MANDATORY</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#REQUIRES-NEW"><span class="nav-number">1.5.0.4.</span> <span class="nav-text">REQUIRES_NEW</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#NOT-SUPPORTED"><span class="nav-number">1.5.0.5.</span> <span class="nav-text">NOT_SUPPORTED</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#NEVER"><span class="nav-number">1.5.0.6.</span> <span class="nav-text">NEVER</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#NESTED"><span class="nav-number">1.5.0.7.</span> <span class="nav-text">NESTED</span></a></li></ol></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">流殃</p>
+  <div class="site-description" itemprop="description">用微笑面对生活</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">87</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">33</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://www.sunheyi.cn/2021/03/29/mysql%E4%BA%8B%E5%8A%A1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="流殃">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="流殃">
+      <meta itemprop="description" content="用微笑面对生活">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="mysql事务 | 流殃">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          mysql事务
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-03-29 14:54:54" itemprop="dateCreated datePublished" datetime="2021-03-29T14:54:54+08:00">2021-03-29</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2023-11-25 17:03:40" itemprop="dateModified" datetime="2023-11-25T17:03:40+08:00">2023-11-25</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="事务"><a href="#事务" class="headerlink" title="事务"></a>事务</h1><span id="more"></span>
+
+<h2 id="常见问题"><a href="#常见问题" class="headerlink" title="常见问题"></a>常见问题</h2><h3 id="脏写"><a href="#脏写" class="headerlink" title="脏写"></a>脏写</h3><p>现在有两个事务A和B，A和B同时在修改一个数据，A先更新，B再更新，但是B回滚了，那么A就是没有写进去，这个数据还是原来的值，这样的情况 称之为脏写</p>
+<h3 id="脏读"><a href="#脏读" class="headerlink" title="脏读"></a>脏读</h3><p>有两个事务A和B，A读取了B已经修改了，但是还没有提交事务的数据，之后B事务回滚了，就会造成A读取的数据和数据库中存储的数据不一样，这样的情况 称之为脏读</p>
+<h3 id="不可重复读"><a href="#不可重复读" class="headerlink" title="不可重复读"></a>不可重复读</h3><p>就是每次读取的数据，都和上次读取的数据不一样</p>
+<p>比如一个事务A已经开始事务，读取到了一个数据的值，然后同时一个事务B修改了这数据并且事务提交，那么事务A再次过来查询，就是发现刚才的数据值发生变化了，变成数据B了，如果此时，事务A还没有提交，又过来一个事务C修改了这个数据并且提交，那么事务A再次来查询这个数据就变成了数据C，这种 在一个事务多次查询同一个值，但是查询结果每次都有变化的现象被 称为 不可重复读。</p>
+<blockquote>
+<p>不可重复默认就避免了脏读的问题，因为只有在别的事务已经提交之后，当前在查询的事务才能看到新的值</p>
+</blockquote>
+<h3 id="幻读"><a href="#幻读" class="headerlink" title="幻读"></a>幻读</h3><p>当一个事务，用一个一样的sql进行多次查询之后，结果每次都会看到比上次多一些数据，这种现象被称为 幻读</p>
+<h3 id="长事务"><a href="#长事务" class="headerlink" title="长事务"></a>长事务</h3><h4 id="尽量不要使用长事务"><a href="#尽量不要使用长事务" class="headerlink" title="尽量不要使用长事务"></a>尽量不要使用长事务</h4><p>长事务意味着系统里面会存在很老的事务视图。由于这些事务随时可能访问数据库里面的任何数据，所以这个事务提交之前，数据库里面它可能用到的回滚记录都必须保留，这就会导致大量占用存储空间。</p>
+<p>在 MySQL 5.5 及以前的版本，回滚日志是跟数据字典一起放在 ibdata 文件里的，即使长事务最终提交，回滚段被清理，文件也不会变小。我见过数据只有 20GB，而回滚段有 200GB 的库。最终只好为了清理回滚段，重建整个库。</p>
+<h4 id="查询尝事务"><a href="#查询尝事务" class="headerlink" title="查询尝事务"></a>查询尝事务</h4><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> information_schema.innodb_trx <span class="keyword">where</span> TIME_TO_SEC(timediff(now(),trx_started))<span class="operator">&gt;</span><span class="number">60</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="级别"><a href="#级别" class="headerlink" title="级别"></a>级别</h2><h3 id="未提交"><a href="#未提交" class="headerlink" title="未提交"></a>未提交</h3><p>read uncommitted</p>
+<p>这个级别的事务，是不允许发生脏写的，也就是说不可能两个数据在没有提交的情况下去更新同一行数据的值，但是在这种隔离的级别下，可能发生脏读，不可重复读，幻读</p>
+<h3 id="读提交（RC）"><a href="#读提交（RC）" class="headerlink" title="读提交（RC）"></a>读提交（RC）</h3><p>read commited</p>
+<p>很明显，意思就是一个事务在没有提交的情况下，其他事务是读取不到这个事务的修改之后的值的。</p>
+<h3 id="可重复读（RR）"><a href="#可重复读（RR）" class="headerlink" title="可重复读（RR）"></a>可重复读（RR）</h3><blockquote>
+<p>mysql默认的事务级别</p>
+</blockquote>
+<p>这个级别下，不会发生脏写、脏读和不可重复读的问题，因为你一个事务多次查询一个数据的值，那么别的事务修改了这个值并且提交了，但是你还是不会读到其他事务修改过的值，你的事务一旦开始，多次查询一个值，会一直读到同一个值</p>
+<h3 id="串行化"><a href="#串行化" class="headerlink" title="串行化"></a>串行化</h3><p>这个级别的意思就是不会有事务并发执行了，一个一个执行</p>
+<blockquote>
+<p>一般生产不会选择这个级别，因为这样数据库的性能太差了</p>
+</blockquote>
+<h2 id="MVCC"><a href="#MVCC" class="headerlink" title="MVCC"></a>MVCC</h2><h3 id="undolog版本链"><a href="#undolog版本链" class="headerlink" title="undolog版本链"></a>undolog版本链</h3><p><img src="https://gitee.com/flow_disaster/blog-map-bed/raw/master/img/image-20210331111047071.png" alt="image-20210331111047071"></p>
+<p>上图看起来很简单，无非就是一个新的事务来了，更新这个值，就在undolog版本链上增加一行数据，值更新，txr_id更新为书屋id，roll_pointer指向上一条数据的值</p>
+<h3 id="ReadView"><a href="#ReadView" class="headerlink" title="ReadView"></a>ReadView</h3><p>执行一个事务的时候，就会生成一个ReadView</p>
+<h4 id="四个参数"><a href="#四个参数" class="headerlink" title="四个参数"></a>四个参数</h4><ul>
+<li>m_ids 这个就是说此时有那些事务在mysql里执行还没有提交</li>
+<li>min_trx_id   就是m_ids里最小的值</li>
+<li>max_trx_id   就是myslq下一个要生成的事务di，就是最大的事务id</li>
+<li>creator_trx_id  就是当前事务的事务id</li>
+</ul>
+<h4 id="执行过程"><a href="#执行过程" class="headerlink" title="执行过程"></a>执行过程</h4><p>数据库里有一行数据</p>
+<p><img src="https://gitee.com/flow_disaster/blog-map-bed/raw/master/img/image-20210331123304477.png" alt="image-20210331123304477"></p>
+<p>有两个并发的事务过来了，一个是A，事务id&#x3D;45，一个B，事务id&#x3D;59，B是去更新这行数据的，A是去查询这个行数据的</p>
+<ol>
+<li><p>A事务生成一个ReadView，</p>
+<ul>
+<li>m_ids  45,59</li>
+<li>min_id 45</li>
+<li>max_id 59 </li>
+<li>creator_trx_id 45</li>
+</ul>
+</li>
+<li><p>A开始查询数据，A要进行判断，判断当前这行的数据的txr_id是否小于ReadView中的min_trx_id,小于最min_trx_id说明你事务开始之前这个事务已经执行完成了，所以可以看到这个事务的结果，也就是这行数数据</p>
+</li>
+<li><p><img src="https://gitee.com/flow_disaster/blog-map-bed/raw/master/img/image-20210331195633044.png" alt="image-20210331195633044"></p>
+<p>B把这个数据更新了，于是就把B的事务id作为txr_id，B的值也放上去，然后roll_pointer指向原始值</p>
+</li>
+<li><p>此时A再过来查，还是先和当前txr_id比较，发现trx_id在m_ids之中，就知道这个事务是和自己的事务并发执行的，所以这个结果是读不到的， 于是就顺着链表往下查找，发现32是小于min_trx_id的，知道这行数据是在自己事务之前执行完成的，所以可以读到这行数据</p>
+</li>
+<li><p>最终读到的数据就是原始值</p>
+</li>
+</ol>
+<h4 id="RC"><a href="#RC" class="headerlink" title="RC"></a>RC</h4><p>RC的实现其实就是根据undolog版本链和ReadView来构成的，其实每次查询的时候都生成一个ReadView，这样就可以保证，虽然两个事务同时开启，其中一个写的数据先执行成功，另外一个读的事务可以读到修改后的值</p>
+<blockquote>
+<p>重点在于：m_ids中代表这还活跃的时候，当发现这个事务的id在min_trx_id和max_trx_id之间，但是不在m_ids中的时候，表示的意思是 两个事务虽然同时开始执行，但是其中一个先提交了，所以另外一个事务可以看到这个事务已经提交的值</p>
+</blockquote>
+<h4 id="RR"><a href="#RR" class="headerlink" title="RR"></a>RR</h4><p>rr通过undolog版本链和ReadView解决了不可重复读和幻读的问题</p>
+<p>解决不可重复读和幻读问题，主要是靠 只 生成一次的ReadView来解决的</p>
+<p>还用上面的那个例子来说明</p>
+<p>刚开始是有一条原始数据 trx_id为32，然后事务A和事务B同时启动，事务A是查询，事务B是更新数据，在事务A第一次查询的时候，生成一次ReadView</p>
+<ul>
+<li>m_ids  45,59</li>
+<li>min_id 45</li>
+<li>max_id 59 </li>
+<li>creator_trx_id 45</li>
+</ul>
+<p>事务A第一次查询，在B事务还没有提交的时候，读取到的是原始值，因为32小于min_id</p>
+<p>事务A第二次查询，在B事务已经提交的时候，此时trx_id变为了59，59在 在min_ids中，也在min_id和max_id之间，表示事务A和事务B是同时启动的，所以即使事务B提交了，但是A还是读取不到B修改后的值，读取到的还是原始值</p>
+<blockquote>
+<p>重点在于：事务id 在min_ids中，也在min_id和max_id之间，表示事务A和事务B是同时启动的，并发启动，无论你事务是否提交，都只能读取到之前已经提交的数据</p>
+</blockquote>
+<p>幻读，也是靠只 生成一次的ReadView来解决的，无论你修改多少回，事务A查询的这个ReadView永远不变，在B之后修改的时候id，肯定要大于B的事务id59，而大于max_id的意思是在之后才执行的事务，所以是读取不到的，所以就往前面找，往前找就到了上面不可重复读的情况，再往上就读取到了  原始数据</p>
+<h2 id="启动方式"><a href="#启动方式" class="headerlink" title="启动方式"></a>启动方式</h2><p>两种</p>
+<ul>
+<li>显式启动事务语句， begin 或 start transaction。配套的提交语句是 commit，回滚语句是 rollback。</li>
+<li>set autocommit&#x3D;0，这个命令会将这个线程的自动提交关掉。意味着如果你只执行一个 select 语句，这个事务就启动了，而且并不会自动提交。这个事务持续存在直到你主动执行 commit 或 rollback 语句，或者断开连接。</li>
+</ul>
+<blockquote>
+<p>begin&#x2F;start transaction 命令并不是一个事务的起点，在执行到它们之后的第一个操作 InnoDB 表的语句，事务才真正启动。如果你想要马上启动一个事务，可以使用 start transaction with consistent snapshot 这个命令。</p>
+</blockquote>
+<h2 id="事务传播"><a href="#事务传播" class="headerlink" title="事务传播"></a>事务传播</h2><p>事务传播 - Propagation</p>
+<h4 id="REQUIRED"><a href="#REQUIRED" class="headerlink" title="REQUIRED"></a>REQUIRED</h4><p>使用当前的事务，如果当前没有事务，则自己新建一个事务，子方法是必须运行在一个事务中的；</p>
+<p>如果当前存在事务，则加入这个事务，成为一个整体。</p>
+<p>举例：领导没饭吃，我有钱，我会自己买了自己吃；领导有的吃，会分给你一起吃。</p>
+<h4 id="SUPPORTS"><a href="#SUPPORTS" class="headerlink" title="SUPPORTS"></a>SUPPORTS</h4><p>如果当前有事务，则使用事务；如果当前没有事务，则不使用事务。</p>
+<p>举例：领导没饭吃，我也没饭吃；领导有饭吃，我也有饭吃。</p>
+<h4 id="MANDATORY"><a href="#MANDATORY" class="headerlink" title="MANDATORY"></a>MANDATORY</h4><p>该传播属性强制必须存在一个事务，如果不存在，则抛出异常</p>
+<p>举例：领导必须管饭，不管饭没饭吃，我就不乐意了，就不干了（抛出异常）</p>
+<h4 id="REQUIRES-NEW"><a href="#REQUIRES-NEW" class="headerlink" title="REQUIRES_NEW"></a>REQUIRES_NEW</h4><p>如果当前有事务，则挂起该事务，并且自己创建一个新的事务给自己使用；</p>
+<p>如果当前没有事务，则同 REQUIRED</p>
+<p>举例：领导有饭吃，我偏不要，我自己买了自己吃</p>
+<h4 id="NOT-SUPPORTED"><a href="#NOT-SUPPORTED" class="headerlink" title="NOT_SUPPORTED"></a>NOT_SUPPORTED</h4><p>如果当前有事务，则把事务挂起，自己不适用事务去运行数据库操作</p>
+<p>举例：领导有饭吃，分一点给你，我太忙了，放一边，我不吃</p>
+<h4 id="NEVER"><a href="#NEVER" class="headerlink" title="NEVER"></a>NEVER</h4><p>如果当前有事务存在，则抛出异常</p>
+<p>举例：领导有饭给你吃，我不想吃，我热爱工作，我抛出异常</p>
+<h4 id="NESTED"><a href="#NESTED" class="headerlink" title="NESTED"></a>NESTED</h4><p>如果当前有事务，则开启子事务（嵌套事务），嵌套事务是独立提交或者回滚；</p>
+<p>如果当前没有事务，则同 REQUIRED。</p>
+<p>但是如果主事务提交，则会携带子事务一起提交。</p>
+<p>如果主事务回滚，则子事务会一起回滚。相反，子事务异常，则父事务可以回滚或不回滚。</p>
+<p>举例：领导决策不对，老板怪罪，领导带着小弟一同受罪。小弟出了差错，领导可以推卸责任。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/mysql/" rel="tag"># mysql</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/03/28/linux%E7%BB%93%E6%9E%84/" rel="prev" title="linux结构">
+                  <i class="fa fa-angle-left"></i> linux结构
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/03/31/mysql%E9%94%81/" rel="next" title="mysql锁">
+                  mysql锁 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">流殃</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>
