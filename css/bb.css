@@ -1,5 +1,7 @@
 /* maintop */
-
+div#post{
+    font-size:larger;
+}
 div#main_top {
     z-index: 1;
     max-width: 1200px;
